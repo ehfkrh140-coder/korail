@@ -23,6 +23,8 @@ const server = createServer(async (req, res) => {
       return json(res, 200, {
         config: appConfig,
         mode: 'manual-only',
+        message: '자동 브라우저 조작 없이, Chrome 수동 새로고침 타이머와 사용자가 직접 조회한 결과 텍스트 분석만 제공합니다.',
+      });
         message: 'Playwright/브라우저 자동조작 없이, 수동 새로고침 타이머와 사용자가 직접 조회한 결과 텍스트 분석만 제공합니다.',
       });
       return json(res, 200, taskManager.getSnapshot());

@@ -6,6 +6,8 @@ export const appConfig = {
     defaultIntervalSeconds: 35,
     minIntervalSeconds: 20,
     recommendedIntervalSeconds: 35,
+    description: 'KORAIL을 자동 조작하지 않고, 사용자가 Chrome에서 직접 새로고침/조회할 타이밍을 알려주는 수동 반복 확인 도우미입니다.',
+  },
     description: 'KORAIL을 자동 조작하지 않고, 사용자가 직접 새로고침/조회할 타이밍을 알려주는 수동 반복 확인 도우미입니다.',
   },
   pollIntervalSeconds: 30,

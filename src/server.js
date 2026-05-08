@@ -4,6 +4,9 @@ import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appConfig } from './config.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(__dirname, '..', 'public');
 import { EventBus } from './events.js';
 import { TaskManager } from './taskManager.js';
 
@@ -17,6 +20,11 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
 
     if (req.method === 'GET' && url.pathname === '/api/state') {
+      return json(res, 200, {
+        config: appConfig,
+        mode: 'manual-only',
+        message: 'Playwright/브라우저 자동조작 없이, 수동 새로고침 타이머와 사용자가 직접 조회한 결과 텍스트 분석만 제공합니다.',
+      });
       return json(res, 200, taskManager.getSnapshot());
     }
 
@@ -44,6 +52,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(appConfig.port, () => {
+  console.log(`KORAIL manual seat helper running at http://localhost:${appConfig.port}`);
   console.log(`KORAIL helper running at http://localhost:${appConfig.port}`);
 });
 

@@ -2,3 +2,9 @@ node_modules/
 npm-debug.log*
 .DS_Store
 .env
+dist/
+.vite/
+data/browser-profile/
+data/screenshots/
+*.log
+.DS_Store

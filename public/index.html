@@ -1,5 +1,412 @@
 <!doctype html>
 <html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KTX Chrome 수동 빈자리 확인 도우미</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e0ec;
+      --primary: #1457d9;
+      --primary-dark: #0e3f9e;
+      --ok: #087443;
+      --warn: #b54708;
+      --danger: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 32px 20px;
+      background: linear-gradient(135deg, #113d8f, #1769ff);
+      color: white;
+    }
+
+    header .wrap, main { max-width: 1040px; margin: 0 auto; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 12px; }
+    p { margin: 0 0 12px; }
+    main { padding: 24px 20px 56px; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(20, 35, 80, 0.08);
+      margin-bottom: 16px;
+    }
+
+    .notice { border-left: 5px solid var(--primary); }
+    .warning { border-left: 5px solid var(--warn); }
+    .success { border-left: 5px solid var(--ok); }
+    .muted { color: var(--muted); }
+    .task { display: flex; flex-direction: column; gap: 8px; }
+    .task strong { font-size: 18px; }
+
+    button, a.button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover, a.button:hover { background: var(--primary-dark); }
+    button.secondary { background: #eef3ff; color: var(--primary); }
+    button.secondary:hover { background: #dbe7ff; }
+    button.danger { background: var(--danger); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    label { display: block; font-weight: 700; margin-bottom: 6px; }
+    select, input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font: inherit;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea { min-height: 190px; resize: vertical; }
+    .controls { display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: end; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .timer {
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      background: #fbfcff;
+    }
+    .countdown { font-size: clamp(42px, 9vw, 78px); font-weight: 900; letter-spacing: -0.06em; color: var(--primary); }
+    .result { white-space: pre-wrap; border-radius: 14px; padding: 14px; background: #f8fafc; border: 1px solid var(--line); }
+    .result.ok { border-color: #86efac; background: #f0fdf4; color: var(--ok); }
+    .result.no { border-color: #fed7aa; background: #fff7ed; color: var(--warn); }
+    .result.bad { border-color: #fecaca; background: #fef2f2; color: var(--danger); }
+    ol, ul { padding-left: 22px; }
+    code { background: #eef2f7; border-radius: 6px; padding: 2px 5px; }
+
+    @media (max-width: 760px) {
+      .grid, .controls { grid-template-columns: 1fr; }
+      header { padding: 26px 16px; }
+      main { padding: 18px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>KTX Chrome 수동 빈자리 확인 도우미</h1>
+      <p>일반 Chrome에서 KORAIL을 직접 로그인·조회·새로고침하고, 이 화면은 타이머와 붙여넣기 판독만 도와줍니다.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="card warning">
+      <h2>중요: 자동화 브라우저를 사용하지 않습니다</h2>
+      <p>Playwright, Puppeteer, Selenium, 자동 클릭, 자동 새로고침 기능은 넣지 않았습니다. KORAIL에서 매크로로 오인될 수 있으므로 일반 Chrome에서 사용자가 직접 조작하는 방식으로 설계했습니다.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card task">
+        <strong>가는 편</strong>
+        <span>2026-05-23 광명 → 부산</span>
+        <span>시간대: 09:00 ~ 13:00</span>
+        <span>승객: 성인 1명 / 좌석: 일반실·특실 아무 좌석</span>
+      </article>
+      <article class="card task">
+        <strong>오는 편</strong>
+        <span>2026-05-25 부산 → 광명</span>
+        <span>시간대: 09:00 ~ 15:00</span>
+        <span>승객: 성인 1명 / 좌석: 일반실·특실 아무 좌석</span>
+      </article>
+    </section>
+
+    <section class="card notice">
+      <h2>사용 순서</h2>
+      <ol>
+        <li><a class="button" href="https://www.letskorail.com/ebizprd/EbizPrdTicketPr21111_i1.do" target="_blank" rel="noreferrer">KORAIL 예매 페이지 열기</a></li>
+        <li>새 탭에서 KORAIL에 직접 로그인합니다.</li>
+        <li>위 조건으로 직접 조회합니다.</li>
+        <li>매진이면 아래 타이머를 켜고, 알림이 울릴 때마다 KORAIL 탭에서 직접 새로고침/조회합니다.</li>
+        <li>조회 결과 화면을 <code>Ctrl + A</code> → <code>Ctrl + C</code>로 복사한 뒤 아래에 붙여넣고 검사합니다.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>수동 새로고침 타이머</h2>
+      <div class="controls">
+        <div>
+          <label for="taskSelect">확인할 조건</label>
+          <select id="taskSelect"></select>
+        </div>
+        <div>
+          <label for="intervalInput">간격(초)</label>
+          <input id="intervalInput" type="number" min="20" step="5" value="35">
+        </div>
+      </div>
+      <div class="timer" aria-live="polite">
+        <div class="muted" id="timerStatus">대기 중</div>
+        <div class="countdown" id="countdown">00:00</div>
+        <div id="timerHelp">반복 확인 시작을 누르면 카운트다운이 시작됩니다.</div>
+      </div>
+      <div class="actions">
+        <button id="startTimer">반복 확인 시작</button>
+        <button class="secondary" id="checkedNow" disabled>방금 직접 확인함</button>
+        <button class="danger" id="stopTimer" disabled>중지</button>
+        <button class="secondary" id="notifyButton">브라우저 알림 허용</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>조회 결과 붙여넣기</h2>
+      <p class="muted">KORAIL 결과 화면 전체를 복사해서 붙여넣으세요. 이 도구는 시간대, KTX 문구, 예약 가능 문구를 찾아 후보를 표시합니다.</p>
+      <textarea id="resultText" placeholder="여기에 KORAIL 조회 결과를 붙여넣으세요."></textarea>
+      <div class="actions">
+        <button id="analyzeButton">빈자리 확인</button>
+        <button class="secondary" id="clearButton">내용 지우기</button>
+      </div>
+      <div id="analysisResult" class="result" style="margin-top: 12px;">아직 검사하지 않았습니다.</div>
+    </section>
+
+    <section class="card success">
+      <h2>빈자리를 발견하면</h2>
+      <ul>
+        <li>타이머가 자동으로 멈춥니다.</li>
+        <li>KORAIL 탭으로 바로 돌아가 직접 예약 버튼을 누르세요.</li>
+        <li>좌석은 매우 빨리 사라질 수 있으므로 결제 전 단계까지는 직접 빠르게 진행해야 합니다.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const tasks = [
+      {
+        id: 'outbound',
+        label: '가는 편: 2026-05-23 광명 → 부산 09:00~13:00',
+        date: '2026-05-23',
+        from: '광명',
+        to: '부산',
+        startTime: '09:00',
+        endTime: '13:00'
+      },
+      {
+        id: 'return',
+        label: '오는 편: 2026-05-25 부산 → 광명 09:00~15:00',
+        date: '2026-05-25',
+        from: '부산',
+        to: '광명',
+        startTime: '09:00',
+        endTime: '15:00'
+      }
+    ];
+
+    const taskSelect = document.querySelector('#taskSelect');
+    const intervalInput = document.querySelector('#intervalInput');
+    const timerStatus = document.querySelector('#timerStatus');
+    const countdown = document.querySelector('#countdown');
+    const timerHelp = document.querySelector('#timerHelp');
+    const startTimer = document.querySelector('#startTimer');
+    const checkedNow = document.querySelector('#checkedNow');
+    const stopTimer = document.querySelector('#stopTimer');
+    const notifyButton = document.querySelector('#notifyButton');
+    const resultText = document.querySelector('#resultText');
+    const analyzeButton = document.querySelector('#analyzeButton');
+    const clearButton = document.querySelector('#clearButton');
+    const analysisResult = document.querySelector('#analysisResult');
+
+    let timerId = null;
+    let secondsLeft = 0;
+    let round = 0;
+
+    for (const task of tasks) {
+      const option = document.createElement('option');
+      option.value = task.id;
+      option.textContent = task.label;
+      taskSelect.append(option);
+    }
+
+    startTimer.addEventListener('click', () => {
+      round = 0;
+      startNextRound();
+      startTimer.disabled = true;
+      checkedNow.disabled = false;
+      stopTimer.disabled = false;
+    });
+
+    checkedNow.addEventListener('click', startNextRound);
+    stopTimer.addEventListener('click', stopCountdown);
+
+    notifyButton.addEventListener('click', async () => {
+      if (!('Notification' in window)) {
+        alert('이 브라우저는 알림을 지원하지 않습니다.');
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      alert(permission === 'granted' ? '알림이 허용되었습니다.' : '알림이 허용되지 않았습니다.');
+    });
+
+    analyzeButton.addEventListener('click', () => {
+      const task = getSelectedTask();
+      const result = analyzeText(resultText.value, task);
+      showAnalysis(result);
+      if (result.found) {
+        stopCountdown('빈자리 후보를 찾았습니다. KORAIL 탭으로 돌아가 직접 예약 버튼을 누르세요.');
+        notify('KTX 빈자리 후보 발견', `${task.label} 조건에서 예약 가능 문구를 찾았습니다.`);
+        beep(true);
+      }
+    });
+
+    clearButton.addEventListener('click', () => {
+      resultText.value = '';
+      analysisResult.className = 'result';
+      analysisResult.textContent = '내용을 지웠습니다.';
+    });
+
+    function startNextRound() {
+      clearInterval(timerId);
+      round += 1;
+      secondsLeft = Math.max(20, Number(intervalInput.value || 35));
+      updateCountdown();
+      timerStatus.textContent = `${round}회차 진행 중`;
+      timerHelp.textContent = '카운트다운이 끝나면 KORAIL 탭에서 직접 새로고침/조회하세요.';
+      timerId = setInterval(() => {
+        secondsLeft -= 1;
+        updateCountdown();
+        if (secondsLeft <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          timerStatus.textContent = '지금 확인';
+          timerHelp.textContent = 'KORAIL 탭에서 직접 새로고침/조회한 뒤 결과를 복사해 붙여넣으세요.';
+          notify('KTX 확인 시간', 'KORAIL 탭에서 직접 새로고침/조회할 시간입니다.');
+          beep(false);
+        }
+      }, 1000);
+    }
+
+    function stopCountdown(message = '중지됨') {
+      clearInterval(timerId);
+      timerId = null;
+      secondsLeft = 0;
+      updateCountdown();
+      timerStatus.textContent = '중지됨';
+      timerHelp.textContent = message;
+      startTimer.disabled = false;
+      checkedNow.disabled = true;
+      stopTimer.disabled = true;
+    }
+
+    function updateCountdown() {
+      const minutes = Math.floor(Math.max(0, secondsLeft) / 60);
+      const seconds = Math.max(0, secondsLeft) % 60;
+      countdown.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function getSelectedTask() {
+      return tasks.find((task) => task.id === taskSelect.value) || tasks[0];
+    }
+
+    function analyzeText(text, task) {
+      const cleaned = text.replace(/\u00a0/g, ' ').replace(/\t/g, ' ');
+      const lines = cleaned.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      if (lines.length === 0) {
+        return { found: false, level: 'bad', message: '붙여넣은 내용이 없습니다.' };
+      }
+
+      const candidates = [];
+      for (let index = 0; index < lines.length; index += 1) {
+        const windowText = lines.slice(Math.max(0, index - 2), Math.min(lines.length, index + 3)).join(' ');
+        const time = extractTime(windowText);
+        if (!time || !isTimeInRange(time, task.startTime, task.endTime)) continue;
+        if (!/(KTX|산천|청룡)/i.test(windowText)) continue;
+        if (/(예약하기|예약 가능|예매|선택|특실\s*예약|일반실\s*예약)/.test(windowText) && !/(매진|입석|자유석|대기)/.test(windowText)) {
+          candidates.push(`${time} 후보: ${windowText}`);
+        }
+      }
+
+      if (candidates.length > 0) {
+        return {
+          found: true,
+          level: 'ok',
+          message: `빈자리 후보 ${candidates.length}건을 찾았습니다.\n\n${candidates.slice(0, 5).join('\n\n')}`
+        };
+      }
+
+      const hasSoldOut = /(매진|입석|자유석|대기)/.test(cleaned);
+      return {
+        found: false,
+        level: 'no',
+        message: hasSoldOut
+          ? '조건에 맞는 예약 가능 문구를 찾지 못했습니다. 매진 상태로 보입니다. 타이머에 맞춰 다시 직접 확인하세요.'
+          : '예약 가능 후보를 찾지 못했습니다. 복사한 결과에 열차 시간/예약 버튼 문구가 포함되어 있는지 확인하세요.'
+      };
+    }
+
+    function extractTime(text) {
+      const match = text.match(/\b([01]?\d|2[0-3])[:시]\s*([0-5]\d)\b/);
+      if (!match) return null;
+      return `${match[1].padStart(2, '0')}:${match[2]}`;
+    }
+
+    function isTimeInRange(time, start, end) {
+      return toMinutes(time) >= toMinutes(start) && toMinutes(time) <= toMinutes(end);
+    }
+
+    function toMinutes(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function showAnalysis(result) {
+      analysisResult.className = `result ${result.level}`;
+      analysisResult.textContent = result.message;
+    }
+
+    function notify(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body });
+      }
+    }
+
+    function beep(found) {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        const audio = new AudioContextClass();
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+        oscillator.frequency.value = found ? 880 : 520;
+        gain.gain.setValueAtTime(0.001, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.25, audio.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.35);
+        oscillator.connect(gain).connect(audio.destination);
+        oscillator.start();
+        oscillator.stop(audio.currentTime + 0.4);
+      } catch {
+        // 브라우저 정책상 소리가 막혀도 화면 안내는 계속 동작합니다.
+      }
+    }
+  </script>
+</body>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

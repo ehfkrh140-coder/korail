@@ -122,6 +122,40 @@ http://localhost:3001
 
 ---
 
+## GitHub에서 “This branch has conflicts”가 보이는 경우
+
+GitHub 화면의 **This branch has conflicts that must be resolved** 문구는 프로그램 실행 오류가 아니라, 현재 작업 브랜치와 GitHub의 기준 브랜치가 같은 파일을 서로 다르게 수정해서 자동 병합을 못 한다는 뜻입니다. 스크린샷에 보인 충돌 파일은 `README.md`, `package.json`, `public/app.js`, `public/index.html`, `public/styles.css`, `src/config.js`, `src/server.js`입니다.
+
+초보자라면 GitHub 웹 편집기에서 충돌 표시를 하나씩 고치기보다, 아래 방식처럼 **현재 브랜치를 최신 기준 브랜치 위에 다시 올린 뒤 충돌 파일은 이 프로젝트 버전으로 유지**하는 편이 가장 단순합니다.
+
+```bash
+git fetch origin
+git checkout 작업브랜치이름
+git rebase origin/main
+```
+
+충돌이 난 파일이 표시되면, 이 프로젝트의 수동 빈자리 확인 도우미 버전을 그대로 쓰기 위해 아래 명령을 실행합니다.
+
+```bash
+git checkout --theirs README.md package.json public/app.js public/index.html public/styles.css src/config.js src/server.js
+git add README.md package.json public/app.js public/index.html public/styles.css src/config.js src/server.js
+git rebase --continue
+```
+
+만약 기준 브랜치 이름이 `main`이 아니라 `master`라면 첫 번째 명령의 `origin/main`을 `origin/master`로 바꾸면 됩니다. `rebase` 도중에는 현재 작업 브랜치의 변경분이 `--theirs`로 표시되므로, 위 명령은 충돌 파일을 이 프로젝트 버전으로 선택합니다. 충돌 해결 뒤에는 아래 명령으로 문법 검사를 한 번 실행하세요.
+
+```bash
+npm run check
+```
+
+그 다음 GitHub에 다시 올립니다.
+
+```bash
+git push --force-with-lease
+```
+
+> 참고: 이 저장소 버전은 KORAIL 자동 조작을 하지 않는 수동 도우미입니다. 충돌을 해결할 때 Playwright나 자동 클릭 코드가 다시 섞이지 않도록 위 파일들은 현재 버전을 유지하는 것을 권장합니다.
+
 ## CODE -8003 메시지가 나온 경우
 
 아래 순서로 진행하세요.

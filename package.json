@@ -1,0 +1,10 @@
+{
+  "name": "korail-chrome-seat-helper",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "check": "node --check src/server.js"
+  }
+}

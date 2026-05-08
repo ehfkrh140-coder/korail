@@ -8,6 +8,12 @@ export const appConfig = {
     recommendedIntervalSeconds: 35,
     description: 'KORAIL을 자동 조작하지 않고, 사용자가 Chrome에서 직접 새로고침/조회할 타이밍을 알려주는 수동 반복 확인 도우미입니다.',
   },
+    description: 'KORAIL을 자동 조작하지 않고, 사용자가 직접 새로고침/조회할 타이밍을 알려주는 수동 반복 확인 도우미입니다.',
+  },
+  pollIntervalSeconds: 30,
+  port: Number(process.env.PORT ?? 3001),
+  korailHomeUrl: 'https://www.korail.com/main.html',
+  korailTicketUrl: 'https://www.letskorail.com/ebizprd/EbizPrdTicketPr21111_i1.do',
   tasks: [
     {
       id: 'gwangmyeong-to-busan-2026-05-23',
@@ -19,6 +25,7 @@ export const appConfig = {
       endTime: '13:00',
       adultCount: 1,
       seatPreference: '일반실/특실 아무 좌석',
+      seatPreference: 'ANY',
     },
     {
       id: 'busan-to-gwangmyeong-2026-05-25',
@@ -33,3 +40,9 @@ export const appConfig = {
     },
   ],
 };
+      seatPreference: 'ANY',
+    },
+  ],
+};
+
+export const getTaskConfig = (taskId) => appConfig.tasks.find((task) => task.id === taskId);

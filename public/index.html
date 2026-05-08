@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KTX 수동 빈자리 확인 도우미</title>
+    <title>KTX 예매 보조</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -26,6 +27,14 @@
           KORAIL 화면을 프로그램이 자동으로 새로고침하거나 클릭하면 매크로 탐지에 걸릴 수 있습니다. 그래서 이 버전은 정해진 간격마다
           사용자에게 “지금 직접 새로고침/조회하세요”라고 알려주고, 사용자가 복사해 온 결과에서 빈자리 후보를 찾아줍니다.
         </p>
+          <p class="eyebrow">Local KTX Booking Helper</p>
+          <h1>KTX 예매 보조 프로그램</h1>
+          <p>
+            성인 1명 기준으로 지정된 KTX 구간을 반복 조회하고, 일반실 또는 특실 좌석이 보이면 예약 버튼을 눌러
+            결제 직전 단계까지 최대한 이동합니다.
+          </p>
+        </div>
+        <button id="loginButton" class="primary">로그인 브라우저 열기</button>
       </section>
 
       <div id="error" class="alert hidden"></div>
@@ -102,6 +111,22 @@
           <li>이 도우미가 "판독 불가"라고 말해도 KORAIL 화면에 예약 버튼이 직접 보이면 KORAIL 화면에서 직접 진행하세요.</li>
           <li>자동 새로고침/자동 클릭은 넣지 않았습니다. 대신 타이머, 알림음, 브라우저 알림으로 수동 반복 확인을 돕습니다.</li>
         </ul>
+        <strong>사용 순서</strong>
+        <ol>
+          <li>로그인 브라우저를 열고 KORAIL 로그인을 직접 완료합니다.</li>
+          <li>원하는 작업의 감시 시작 버튼을 누릅니다.</li>
+          <li>좌석 발견 시 자동화 브라우저에서 예약/결제 화면을 직접 확인합니다.</li>
+        </ol>
+      </section>
+
+      <section id="taskGrid" class="grid"><p>상태를 불러오는 중입니다...</p></section>
+
+      <section class="logs">
+        <div class="section-title">
+          <h2>최근 로그</h2>
+          <span id="logCount">0개</span>
+        </div>
+        <div id="logList" class="log-list"><p class="muted">아직 로그가 없습니다.</p></div>
       </section>
     </main>
     <script type="module" src="/app.js"></script>
